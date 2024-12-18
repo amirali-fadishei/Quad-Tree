@@ -4,7 +4,7 @@ public class ListNode<T> {
     private T data;
     private ListNode<T> next;
     public ListNode(T data) {
-        this.setData(data);;
+        this.setData(data);
         this.setNext(null);
     }
     public T getData() {

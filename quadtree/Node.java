@@ -16,7 +16,7 @@ public class Node {
     }
 
     public int getColor() {
-        return color;
+        return this.color;
     }
 
     public void setColor(int color) {
@@ -24,7 +24,7 @@ public class Node {
     }
 
     public Node getTopLeft() {
-        return topLeft;
+        return this.topLeft;
     }
 
     public void setTopLeft(Node topLeft) {
@@ -32,7 +32,7 @@ public class Node {
     }
 
     public Node getTopRight() {
-        return topRight;
+        return this.topRight;
     }
 
     public void setTopRight(Node topRight) {
@@ -40,7 +40,7 @@ public class Node {
     }
 
     public Node getBottomLeft() {
-        return bottomLeft;
+        return this.bottomLeft;
     }
 
     public void setBottomLeft(Node bottomLeft) {
@@ -48,7 +48,7 @@ public class Node {
     }
 
     public Node getBottomRight() {
-        return bottomRight;
+        return this.bottomRight;
     }
 
     public void setBottomRight(Node bottomRight) {

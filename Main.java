@@ -1,42 +1,72 @@
-package Fadishei;
-
-import Fadishei.quadtree.QuadTree;
-import Fadishei.image.ImageUtils;
-
-import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        int width = 4, height = 4;
-        int[] pixels = {
-                0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00,
-                0x00FFFF, 0xFF00FF, 0x888888, 0xFFFFFF,
-                0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00,
-                0x00FFFF, 0xFF00FF, 0x888888, 0xFFFFFF
-        };
+        String filePath = "./testcase/image4_RGB.csv";
+        List<Integer> pixels = new ArrayList<>();
+        boolean isGrayscale = false;
 
-        QuadTree quadTree = new QuadTree();
-        quadTree.buildTree(pixels, width, height);
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line = br.readLine();
+            if (line != null) {
+                String[] pixelValues = line.replaceAll("\"", "").split(",");
+                if (isGrayscale) {
+                    parseGrayscalePixels(pixelValues, pixels);
+                } else {
+                    parseColorPixels(pixelValues, pixels);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
 
-        BufferedImage originalImage = ImageUtils.createImageFromArray(pixels, width, height);
-        ImageUtils.saveImage(originalImage, "original_image.png");
-        System.out.println("original_image.png");
+        int[] pixelArray = pixels.stream().mapToInt(i -> i).toArray();
 
-        System.out.println(quadTree.TreeDepth());
+        int totalPixels = pixelArray.length;
+        int imageSize = (int) Math.sqrt(totalPixels);
+        if (imageSize * imageSize != totalPixels) {
+            System.err.println("Image data is not a perfect square. Cannot form a square image.");
+            return;
+        }
 
-        int pixelX = 2, pixelY = 2;
-        System.out.println(
-                "pixel depth:(" + pixelX + ", " + pixelY + "): " + quadTree.pixelDepth(pixelX, pixelY, width, height));
+        QuadTree quadTree = new QuadTree(pixelArray, imageSize, isGrayscale);
+        ImageProcess.saveImage(quadTree, "output.png");
 
-        int rangeStartX = 1, rangeStartY = 1, rangeEndX = 3, rangeEndY = 3;
-        quadTree.searchSubspacesWithRange(rangeStartX, rangeStartY, rangeEndX, rangeEndY, width, height);
+        int depth = quadTree.getDepth();
+        System.out.println("Depth of the QuadTree: " + depth);
 
-        quadTree.mask(rangeStartX, rangeStartY, rangeEndX, rangeEndY, width, height);
+        int pixelDepth = quadTree.pixelDepth(128, 128);
+        System.out.println("Depth of the pixel at (128, 128): " + pixelDepth);
 
-        int newSize = 2;
-        int[] compressedPixels = quadTree.compress(newSize, width, height);
-        BufferedImage compressedImage = ImageUtils.createImageFromArray(compressedPixels, newSize, newSize);
-        ImageUtils.saveImage(compressedImage, "compressed_image.png");
-        System.out.println("compressed_image.png");
+        QuadTree rangeQuadTree = quadTree.searchSubspacesWithRange(100, 100, 150, 150);
+        ImageProcess.saveImage(rangeQuadTree, "range_output.png");
+
+        QuadTree maskedQuadTree = quadTree.mask(50, 50, 200, 200);
+        ImageProcess.saveImage(maskedQuadTree, "masked_output.png");
+
+        int newSize = 64;
+        QuadTree compressedQuadTree = quadTree.compress(newSize);
+        ImageProcess.saveImage(compressedQuadTree, "compressed_output.png");
+    }
+
+    private static void parseGrayscalePixels(String[] pixelValues, List<Integer> pixels) {
+        for (String pixelValue : pixelValues) {
+            int gray = Integer.parseInt(pixelValue.trim());
+            pixels.add((gray << 16) | (gray << 8) | gray);
+        }
+    }
+
+    private static void parseColorPixels(String[] pixelValues, List<Integer> pixels) {
+        for (int i = 0; i < pixelValues.length; i += 3) {
+            int r = Integer.parseInt(pixelValues[i].trim());
+            int g = Integer.parseInt(pixelValues[i + 1].trim());
+            int b = Integer.parseInt(pixelValues[i + 2].trim());
+            int rgb = (r << 16) | (g << 8) | b;
+            pixels.add(rgb);
+        }
     }
 }

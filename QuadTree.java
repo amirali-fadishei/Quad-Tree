@@ -15,6 +15,9 @@ public class QuadTree {
         }
 
         int newSize = size / 2;
+        if (newSize == 0) {
+            return null;
+        }
         QuadTreeNode topLeft = buildQuadTree(pixels, x, y, newSize);
         QuadTreeNode topRight = buildQuadTree(pixels, x + newSize, y, newSize);
         QuadTreeNode bottomLeft = buildQuadTree(pixels, x, y + newSize, newSize);

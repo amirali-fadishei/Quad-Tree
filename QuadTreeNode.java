@@ -14,46 +14,47 @@ public class QuadTreeNode {
     }
 
     public boolean isLeaf() {
-        return topLeft == null && topRight == null && bottomLeft == null && bottomRight == null;
+        boolean state = topLeft == null && topRight == null && bottomLeft == null && bottomRight == null;
+        return state;
     }
 
     public void setTopLeft(QuadTreeNode node) {
         this.topLeft = node;
     }
 
-    public void setTopRight(QuadTreeNode node) {
-        this.topRight = node;
-    }
-
-    public void setBottomLeft(QuadTreeNode node) {
-        this.bottomLeft = node;
-    }
-
-    public void setBottomRight(QuadTreeNode node) {
-        this.bottomRight = node;
-    }
-
     public QuadTreeNode getTopLeft() {
         return topLeft;
+    }
+
+    public void setTopRight(QuadTreeNode node) {
+        this.topRight = node;
     }
 
     public QuadTreeNode getTopRight() {
         return topRight;
     }
 
+    public void setBottomLeft(QuadTreeNode node) {
+        this.bottomLeft = node;
+    }
+
     public QuadTreeNode getBottomLeft() {
         return bottomLeft;
+    }
+
+    public void setBottomRight(QuadTreeNode node) {
+        this.bottomRight = node;
     }
 
     public QuadTreeNode getBottomRight() {
         return bottomRight;
     }
 
-    public int getPixelValue() {
-        return pixelValue;
-    }
-
     public void setPixelValue(int pixelValue) {
         this.pixelValue = pixelValue;
+    }
+
+    public int getPixelValue() {
+        return pixelValue;
     }
 }

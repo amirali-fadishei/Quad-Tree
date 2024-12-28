@@ -1,9 +1,8 @@
 public class Main {
     public static void main(String[] args) {
         boolean isGrayscale = false;
-        String inputFilePath = "C:\\Users\\amira\\Desktop\\DS Final\\Quad-Tree\\testcase\\image4_RGB.csv";
+        String inputFilePath = "C:\\Users\\amira\\Desktop\\Quad-Tree\\testcase\\image4_RGB.csv";
         int[] pixelArray = ImageProcess.loadPixelsFromFile(inputFilePath, isGrayscale);
-
         int totalPixels = pixelArray.length;
         int imageSize = (int) Math.sqrt(totalPixels);
 

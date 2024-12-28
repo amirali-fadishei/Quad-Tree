@@ -24,7 +24,7 @@ public class ImageProcess {
         return pixels;
     }
 
-    private static int[] parseGrayscalePixels(String[] pixelValues) {
+    public static int[] parseGrayscalePixels(String[] pixelValues) {
         int[] pixels = new int[pixelValues.length];
         for (int i = 0; i < pixelValues.length; i++) {
             int gray = Integer.parseInt(pixelValues[i].trim());
@@ -33,7 +33,7 @@ public class ImageProcess {
         return pixels;
     }
 
-    private static int[] parseColorPixels(String[] pixelValues) {
+    public static int[] parseColorPixels(String[] pixelValues) {
         int[] pixels = new int[pixelValues.length / 3];
         for (int i = 0, j = 0; i < pixelValues.length; i += 3, j++) {
             int r = Integer.parseInt(pixelValues[i].trim());
@@ -54,7 +54,7 @@ public class ImageProcess {
         saveBufferedImageToFile(image, filePath);
     }
 
-    private static BufferedImage createBufferedImage(int imageSize, int[] pixels) {
+    public static BufferedImage createBufferedImage(int imageSize, int[] pixels) {
         BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < imageSize; y++) {
             for (int x = 0; x < imageSize; x++) {
@@ -65,7 +65,7 @@ public class ImageProcess {
         return image;
     }
 
-    private static void saveBufferedImageToFile(BufferedImage image, String filePath) {
+    public static void saveBufferedImageToFile(BufferedImage image, String filePath) {
         try {
             ImageIO.write(image, "png", new File(filePath));
         } catch (IOException e) {

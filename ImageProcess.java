@@ -4,17 +4,14 @@ import javax.imageio.ImageIO;
 
 public class ImageProcess {
 
-    public static int[] loadPixelsFromFile(String filePath, boolean isGrayscale) {
+    public static int[] loadPixels(String filePath, boolean isGrayscale) {
         int[] pixels = null;
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            br.readLine();
             String line = br.readLine();
             if (line != null) {
                 String[] pixelValues = line.replaceAll("\"", "").split(",");
-                if (isGrayscale) {
-                    pixels = parseGrayscalePixels(pixelValues);
-                } else {
-                    pixels = parseColorPixels(pixelValues);
-                }
+                pixels = isGrayscale ? parseGrayPixels(pixelValues) : parseRGBPixels(pixelValues);
             }
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + e.getMessage());
@@ -24,16 +21,16 @@ public class ImageProcess {
         return pixels;
     }
 
-    public static int[] parseGrayscalePixels(String[] pixelValues) {
+    public static int[] parseGrayPixels(String[] pixelValues) {
         int[] pixels = new int[pixelValues.length];
-        for (int i = 0; i < pixelValues.length; i++) {
-            int gray = Integer.parseInt(pixelValues[i].trim());
-            pixels[i] = (gray << 16) | (gray << 8) | gray;
+        for (int counter = 0; counter < pixelValues.length; counter++) {
+            int gray = Integer.parseInt(pixelValues[counter].trim());
+            pixels[counter] = (gray << 16) | (gray << 8) | gray;
         }
         return pixels;
     }
 
-    public static int[] parseColorPixels(String[] pixelValues) {
+    public static int[] parseRGBPixels(String[] pixelValues) {
         int[] pixels = new int[pixelValues.length / 3];
         for (int i = 0, j = 0; i < pixelValues.length; i += 3, j++) {
             int r = Integer.parseInt(pixelValues[i].trim());
@@ -45,19 +42,18 @@ public class ImageProcess {
     }
 
     public static void saveImage(QuadTree quadTree, String filePath) {
-        int imageSize = quadTree.getImageSize();
+        int imageSize = quadTree.getAspect();
         int[] pixels = new int[imageSize * imageSize];
         quadTree.fillImage(pixels);
 
         BufferedImage image = createBufferedImage(imageSize, pixels);
-
         saveBufferedImageToFile(image, filePath);
     }
 
     public static BufferedImage createBufferedImage(int imageSize, int[] pixels) {
         BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < imageSize; y++) {
-            for (int x = 0; x < imageSize; x++) {
+        for (int x = 0; x < imageSize; x++) {
+            for (int y = 0; y < imageSize; y++) {
                 int rgb = pixels[y * imageSize + x];
                 image.setRGB(x, y, rgb);
             }

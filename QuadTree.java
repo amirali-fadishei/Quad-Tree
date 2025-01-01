@@ -1,39 +1,50 @@
 public class QuadTree {
     public QuadTreeNode root;
-    public int imageSize;
-    public boolean isGrayscale;
+    private int aspect;
+    private boolean isGray;
 
-    public QuadTree(int[] pixels, int imageSize, boolean isGrayscale) {
-        this.isGrayscale = isGrayscale;
-        this.imageSize = imageSize;
-        this.root = buildTree(pixels, 0, 0, imageSize);
+    public QuadTree(int[] pixels, int aspect, boolean isGray) {
+        this.setIsGray(isGray);
+        this.setAspect(aspect);
+        this.root = buildTree(pixels, 0, 0, aspect);
     }
 
-    public int getImageSize() {
-        return imageSize;
+    public void setAspect(int aspect) {
+        this.aspect = aspect;
+    }
+
+    public int getAspect() {
+        return this.aspect;
+    }
+
+    public void setIsGray(boolean isGray) {
+        this.isGray = isGray;
     }
 
     private QuadTreeNode buildTree(int[] pixels, int x, int y, int size) {
         if (size == 1) {
-            return new QuadTreeNode(pixels[y * imageSize + x]);
+            return new QuadTreeNode(pixels[y * aspect + x]);
         }
 
         int newSize = size / 2;
+
         QuadTreeNode topLeft = buildTree(pixels, x, y, newSize);
         QuadTreeNode topRight = buildTree(pixels, x + newSize, y, newSize);
         QuadTreeNode bottomLeft = buildTree(pixels, x, y + newSize, newSize);
         QuadTreeNode bottomRight = buildTree(pixels, x + newSize, y + newSize, newSize);
 
-        QuadTreeNode node = new QuadTreeNode(-1);
-        node.setTopLeft(topLeft);
-        node.setTopRight(topRight);
-        node.setBottomLeft(bottomLeft);
-        node.setBottomRight(bottomRight);
-        return node;
+        QuadTreeNode newNode = new QuadTreeNode(-1);
+
+        newNode.setTopLeft(topLeft);
+        newNode.setTopRight(topRight);
+        newNode.setBottomLeft(bottomLeft);
+        newNode.setBottomRight(bottomRight);
+
+        return newNode;
     }
 
     public void fillImage(int[] image) {
-        fillImage(root, image, 0, 0, imageSize);
+        fillImage(this.root, image, 0, 0, aspect);
     }
 
     private void fillImage(QuadTreeNode node, int[] image, int x, int y, int size) {
@@ -41,11 +52,12 @@ public class QuadTree {
             return;
         }
         if (size == 1) {
-            image[y * imageSize + x] = node.getPixelValue();
+            image[y * aspect + x] = node.getPixel();
             return;
         }
 
         int newSize = size / 2;
+
         fillImage(node.getTopLeft(), image, x, y, newSize);
         fillImage(node.getTopRight(), image, x + newSize, y, newSize);
         fillImage(node.getBottomLeft(), image, x, y + newSize, newSize);
@@ -53,12 +65,12 @@ public class QuadTree {
     }
 
     public int search(int x, int y) {
-        return search(root, x, y, 0, 0, imageSize);
+        return search(this.root, x, y, 0, 0, aspect);
     }
 
     private int search(QuadTreeNode node, int x, int y, int nodeX, int nodeY, int size) {
         if (size == 1 || node.isLeaf()) {
-            return node.getPixelValue();
+            return node.getPixel();
         }
 
         int newSize = size / 2;
@@ -80,23 +92,25 @@ public class QuadTree {
         }
     }
 
-    public int getDepth() {
-        return getDepth(root);
+    public int treeDepth() {
+        return treeDepth(this.root);
     }
 
-    private int getDepth(QuadTreeNode node) {
+    private int treeDepth(QuadTreeNode node) {
         if (node == null || node.isLeaf()) {
             return 0;
         }
-        int topLeftDepth = getDepth(node.getTopLeft());
-        int topRightDepth = getDepth(node.getTopRight());
-        int bottomLeftDepth = getDepth(node.getBottomLeft());
-        int bottomRightDepth = getDepth(node.getBottomRight());
-        return 1 + Math.max(Math.max(topLeftDepth, topRightDepth), Math.max(bottomLeftDepth, bottomRightDepth));
+        int topLeftDepth = treeDepth(node.getTopLeft());
+        int topRightDepth = treeDepth(node.getTopRight());
+        int bottomLeftDepth = treeDepth(node.getBottomLeft());
+        int bottomRightDepth = treeDepth(node.getBottomRight());
+
+        return 1
+                + Math.max(Math.max(topLeftDepth, topRightDepth), Math.max(bottomLeftDepth, bottomRightDepth));
     }
 
     public int pixelDepth(int x, int y) {
-        return pixelDepth(root, x, y, 0, 0, imageSize, 0);
+        return pixelDepth(root, x, y, 0, 0, aspect, 0);
     }
 
     private int pixelDepth(QuadTreeNode node, int x, int y, int nodeX, int nodeY, int size, int depth) {
@@ -124,27 +138,31 @@ public class QuadTree {
     }
 
     public QuadTree searchSubspacesWithRange(int x1, int y1, int x2, int y2) {
-        int[] image = new int[imageSize * imageSize];
-        for (int i = 0; i < image.length; i++) {
-            image[i] = 0xFFFFFF;
+        int[] image = new int[aspect * aspect];
+
+        for (int counter = 0; counter < image.length; counter++) {
+            image[counter] = 0xFFFFFF;
         }
-        searchSubspacesWithRange(root, image, 0, 0, imageSize, x1, y1, x2, y2);
-        return new QuadTree(image, imageSize, isGrayscale);
+        searchSubspacesWithRange(root, image, 0, 0, aspect, x1, y1, x2, y2);
+        return new QuadTree(image, aspect, isGray);
     }
 
     private void searchSubspacesWithRange(QuadTreeNode node, int[] image, int x, int y, int size, int x1, int y1,
             int x2, int y2) {
+
         if (node == null) {
             return;
         }
+
         if (size == 1 || node.isLeaf()) {
             if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
-                image[y * imageSize + x] = node.getPixelValue();
+                image[y * aspect + x] = node.getPixel();
             }
             return;
         }
 
         int newSize = size / 2;
+
         searchSubspacesWithRange(node.getTopLeft(), image, x, y, newSize, x1, y1, x2, y2);
         searchSubspacesWithRange(node.getTopRight(), image, x + newSize, y, newSize, x1, y1, x2, y2);
         searchSubspacesWithRange(node.getBottomLeft(), image, x, y + newSize, newSize, x1, y1, x2, y2);
@@ -152,24 +170,26 @@ public class QuadTree {
     }
 
     public QuadTree mask(int x1, int y1, int x2, int y2) {
-        int[] image = new int[imageSize * imageSize];
+        int[] image = new int[aspect * aspect];
         fillImage(image);
-        mask(root, image, 0, 0, imageSize, x1, y1, x2, y2);
-        return new QuadTree(image, imageSize, isGrayscale);
+        mask(root, image, 0, 0, aspect, x1, y1, x2, y2);
+        return new QuadTree(image, aspect, isGray);
     }
 
     private void mask(QuadTreeNode node, int[] image, int x, int y, int size, int x1, int y1, int x2, int y2) {
         if (node == null) {
             return;
         }
+
         if (size == 1 || node.isLeaf()) {
             if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
-                image[y * imageSize + x] = 0xFFFFFF;
+                image[y * aspect + x] = 0xFFFFFF;
             }
             return;
         }
 
         int newSize = size / 2;
+
         mask(node.getTopLeft(), image, x, y, newSize, x1, y1, x2, y2);
         mask(node.getTopRight(), image, x + newSize, y, newSize, x1, y1, x2, y2);
         mask(node.getBottomLeft(), image, x, y + newSize, newSize, x1, y1, x2, y2);
@@ -178,23 +198,28 @@ public class QuadTree {
 
     public QuadTree compress(int newSize) {
         int[] compressedImage = new int[newSize * newSize];
-        int factor = imageSize / newSize;
+
+        int factor = aspect / newSize;
+
         for (int y = 0; y < newSize; y++) {
             for (int x = 0; x < newSize; x++) {
                 compressedImage[y * newSize + x] = averageColor(x * factor, y * factor, factor);
             }
         }
-        return new QuadTree(compressedImage, newSize, isGrayscale);
+        return new QuadTree(compressedImage, newSize, isGray);
     }
 
     private int averageColor(int startX, int startY, int size) {
-        int totalRed = 0, totalGreen = 0, totalBlue = 0, totalGray = 0;
         int pixelCount = size * size;
+        int totalRed = 0;
+        int totalGreen = 0;
+        int totalBlue = 0;
+        int totalGray = 0;
 
         for (int y = startY; y < startY + size; y++) {
             for (int x = startX; x < startX + size; x++) {
                 int pixel = search(x, y);
-                if (isGrayscale) {
+                if (isGray) {
                     totalGray += pixel & 0xFF;
                 } else {
                     totalRed += (pixel >> 16) & 0xFF;
@@ -204,7 +229,7 @@ public class QuadTree {
             }
         }
 
-        if (isGrayscale) {
+        if (isGray) {
             int avgGray = totalGray / pixelCount;
             return (avgGray << 16) | (avgGray << 8) | avgGray;
         } else {

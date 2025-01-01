@@ -1,21 +1,20 @@
 public class QuadTreeNode {
-    private int pixelValue;
+    private final int pixel;
     private QuadTreeNode topLeft;
     private QuadTreeNode topRight;
     private QuadTreeNode bottomLeft;
     private QuadTreeNode bottomRight;
 
     public QuadTreeNode(int pixelValue) {
-        this.pixelValue = pixelValue;
-        this.topLeft = null;
-        this.topRight = null;
-        this.bottomLeft = null;
-        this.bottomRight = null;
+        this.setTopLeft(null);
+        this.setTopRight(null);
+        this.setBottomLeft(null);
+        this.setBottomRight(null);
+        this.pixel = pixelValue;
     }
 
     public boolean isLeaf() {
-        boolean state = topLeft == null && topRight == null && bottomLeft == null && bottomRight == null;
-        return state;
+        return topLeft == null && topRight == null && bottomLeft == null && bottomRight == null;
     }
 
     public void setTopLeft(QuadTreeNode node) {
@@ -50,11 +49,7 @@ public class QuadTreeNode {
         return bottomRight;
     }
 
-    public void setPixelValue(int pixelValue) {
-        this.pixelValue = pixelValue;
-    }
-
-    public int getPixelValue() {
-        return pixelValue;
+    public int getPixel() {
+        return pixel;
     }
 }
